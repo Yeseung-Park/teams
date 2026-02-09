@@ -28,7 +28,7 @@
       </thead>
       <tbody>
         <tr v-for="menu in menuStore.menus" :key="menu.menu_id">
-          <td><img v-if="menu.image_url" :src="`http://localhost:8000${menu.image_url}`" class="thumb" /></td>
+          <td><img v-if="menu.image_url" :src="menu.image_url" class="thumb" /></td>
           <td>{{ menu.menu_name }}</td>
           <td>{{ menu.category }}</td>
           <td>{{ menu.price.toLocaleString() }}원</td>
@@ -110,7 +110,7 @@ function editMenu(menu) {
   editingMenu.value = menu
   Object.assign(form, menu)
   if (menu.image_url) {
-    imagePreview.value = `http://localhost:8000${menu.image_url}`
+    imagePreview.value = menu.image_url
   }
   showForm.value = true
 }
@@ -137,7 +137,7 @@ async function uploadImage() {
   formData.append('file', selectedImage.value)
   
   const token = localStorage.getItem('token')
-  const response = await axios.post('http://localhost:8000/api/v1/admin/upload/image', formData, {
+  const response = await axios.post('/api/v1/admin/upload/image', formData, {
     headers: {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'multipart/form-data'
