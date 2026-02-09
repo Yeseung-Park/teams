@@ -11,7 +11,7 @@
     <div v-else class="cart-items">
       <div v-for="item in cartStore.items" :key="item.menu_id" class="cart-item">
         <div class="item-info">
-          <h3>{{ item.name }}</h3>
+          <h3>{{ item.menu_name }}</h3>
           <p class="price">{{ (item.price * item.quantity).toLocaleString() }}원</p>
         </div>
         <div class="quantity-control">

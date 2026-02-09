@@ -55,12 +55,13 @@ const history = ref([])
 const historyLoading = ref(false)
 
 async function fetchTables() {
-  // 임시: 테이블 목록 (실제로는 API에서 가져옴)
-  tables.value = Array.from({ length: 10 }, (_, i) => ({
-    table_id: i + 1,
-    table_number: i + 1,
-    current_session_id: i < 3 ? i + 1 : null
-  }))
+  try {
+    const { data } = await api.get('/admin/tables')
+    tables.value = data
+  } catch (e) {
+    console.error('Failed to fetch tables:', e)
+    tables.value = []
+  }
 }
 
 async function completeTable(tableId) {

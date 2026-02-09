@@ -56,7 +56,7 @@ class OrderService:
         
         db.add(order)
         await db.commit()
-        await db.refresh(order)
+        await db.refresh(order, ["items"])
         
         await sse_service.broadcast(store_id, "new_order", {"order_id": order.order_id, "table_id": table_id})
         

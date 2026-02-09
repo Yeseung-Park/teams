@@ -13,9 +13,9 @@
     <div v-if="menuStore.loading" class="loading">로딩 중...</div>
     <div v-else class="menu-grid">
       <div v-for="menu in filteredMenus" :key="menu.menu_id" class="menu-card" @click="addToCart(menu)">
-        <img v-if="menu.image_url" :src="menu.image_url" :alt="menu.name" />
+        <img v-if="menu.image_url" :src="`http://localhost:8000${menu.image_url}`" :alt="menu.menu_name" />
         <div class="menu-info">
-          <h3>{{ menu.name }}</h3>
+          <h3>{{ menu.menu_name }}</h3>
           <p class="price">{{ menu.price.toLocaleString() }}원</p>
         </div>
       </div>

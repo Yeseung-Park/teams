@@ -5,11 +5,21 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.order.schemas import OrderResponse
+from app.table.schemas import TableResponse
 from app.models.models import Table, TableSession, Order
 from app.sse.service import sse_service
 
 
 class TableService:
+    async def get_tables(self, db: AsyncSession, store_id: int) -> List[TableResponse]:
+        result = await db.execute(
+            select(Table)
+            .where(Table.store_id == store_id)
+            .order_by(Table.table_number)
+        )
+        tables = result.scalars().all()
+        return [TableResponse.model_validate(t) for t in tables]
+    
     async def ensure_session(self, db: AsyncSession, table_id: int) -> int:
         result = await db.execute(select(Table).where(Table.table_id == table_id))
         table = result.scalar_one_or_none()

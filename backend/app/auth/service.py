@@ -4,15 +4,17 @@ from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from jose import jwt, JWTError
-from passlib.context import CryptContext
+import bcrypt
 from app.auth.schemas import TokenResponse, TokenPayload
 from app.models.models import Store, Table
 from app.core.config import settings
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 
 class AuthService:
+    def _verify_password(self, plain_password: str, hashed_password: str) -> bool:
+        """Verify password using bcrypt directly"""
+        return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+    
     def _create_token(self, store_id: int, table_id: Optional[int] = None, is_admin: bool = False) -> str:
         expire = datetime.utcnow() + timedelta(hours=settings.jwt_expire_hours)
         payload = {"store_id": store_id, "table_id": table_id, "is_admin": is_admin, "exp": expire}
@@ -32,7 +34,7 @@ class AuthService:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
         
         # Verify password
-        if not pwd_context.verify(password, table.table_password_hash):
+        if not self._verify_password(password, table.table_password_hash):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
         
         token = self._create_token(store.store_id, table.table_id, is_admin=False)
@@ -46,7 +48,7 @@ class AuthService:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
         
         # Verify password
-        if not pwd_context.verify(password, store.admin_password_hash):
+        if not self._verify_password(password, store.admin_password_hash):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
         
         token = self._create_token(store.store_id, is_admin=True)

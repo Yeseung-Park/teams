@@ -6,9 +6,15 @@ from app.core.dependencies import get_current_admin
 from app.auth.schemas import TokenPayload
 from app.order.schemas import OrderResponse
 from app.table.service import TableService
+from app.table.schemas import TableResponse
 
 router = APIRouter(prefix="/admin/tables", tags=["table"])
 table_service = TableService()
+
+
+@router.get("", response_model=list[TableResponse])
+async def get_tables(db: AsyncSession = Depends(get_db), user: TokenPayload = Depends(get_current_admin)):
+    return await table_service.get_tables(db, user.store_id)
 
 
 @router.post("/{table_id}/complete")

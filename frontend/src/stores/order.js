@@ -10,12 +10,11 @@ export const useOrderStore = defineStore('order', {
 
   actions: {
     async createOrder(items) {
-      const { data } = await api.post('/customer/orders', {
-        items: items.map(item => ({
-          menu_id: item.menu_id,
-          quantity: item.quantity
-        }))
-      })
+      const orderItems = items.map(item => ({
+        menu_id: item.menu_id,
+        quantity: item.quantity
+      }))
+      const { data } = await api.post('/customer/orders', orderItems)
       return data
     },
 
@@ -33,17 +32,33 @@ export const useOrderStore = defineStore('order', {
       this.loading = true
       try {
         const { data } = await api.get('/admin/orders')
-        this.activeOrders = data
+        // Flatten grouped data: [{table_id, orders: []}] -> flat order array with table_number
+        this.activeOrders = data.flatMap(table => 
+          table.orders.map(order => ({
+            ...order,
+            table_number: table.table_number
+          }))
+        )
       } finally {
         this.loading = false
       }
     },
 
     async updateOrderStatus(orderId, status) {
-      const { data } = await api.patch(`/admin/orders/${orderId}/status`, { status })
-      const index = this.activeOrders.findIndex(o => o.order_id === orderId)
-      if (index !== -1) this.activeOrders[index] = data
-      return data
+      try {
+        const { data } = await api.patch(`/admin/orders/${orderId}/status`, { status })
+        const index = this.activeOrders.findIndex(o => o.order_id === orderId)
+        if (index !== -1) {
+          this.activeOrders[index] = {
+            ...this.activeOrders[index],
+            ...data
+          }
+        }
+        return data
+      } catch (e) {
+        console.error('Failed to update order status:', e)
+        throw e
+      }
     },
 
     async deleteOrder(orderId) {

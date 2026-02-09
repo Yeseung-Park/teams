@@ -13,10 +13,10 @@
     <div v-if="orderStore.loading" class="loading">로딩 중...</div>
     
     <div v-else class="order-grid">
-      <div v-for="order in orderStore.activeOrders" :key="order.order_id" class="order-card" :class="order.status">
+      <div v-for="order in orderStore.activeOrders" :key="order.order_id" class="order-card" :class="order.order_status">
         <div class="order-header">
           <span class="table">테이블 {{ order.table_number }}</span>
-          <span class="order-id">#{{ order.order_id }}</span>
+          <span class="order-id">#{{ order.order_number }}</span>
         </div>
         <div class="order-items">
           <div v-for="item in order.items" :key="item.order_item_id">
@@ -24,10 +24,10 @@
           </div>
         </div>
         <div class="order-actions">
-          <select :value="order.status" @change="updateStatus(order.order_id, $event.target.value)">
+          <select :value="order.order_status" @change="updateStatus(order.order_id, $event.target.value)">
             <option value="pending">대기</option>
             <option value="preparing">준비중</option>
-            <option value="ready">완료</option>
+            <option value="completed">완료</option>
           </select>
           <button @click="deleteOrder(order.order_id)" class="delete-btn">삭제</button>
         </div>
@@ -47,13 +47,21 @@ const router = useRouter()
 const auth = useAuthStore()
 const orderStore = useOrderStore()
 
-function updateStatus(orderId, status) {
-  orderStore.updateOrderStatus(orderId, status)
+async function updateStatus(orderId, status) {
+  try {
+    await orderStore.updateOrderStatus(orderId, status)
+  } catch (e) {
+    alert(e.response?.data?.detail || '상태 변경 실패')
+  }
 }
 
-function deleteOrder(orderId) {
+async function deleteOrder(orderId) {
   if (confirm('주문을 삭제하시겠습니까?')) {
-    orderStore.deleteOrder(orderId)
+    try {
+      await orderStore.deleteOrder(orderId)
+    } catch (e) {
+      alert(e.response?.data?.detail || '삭제 실패')
+    }
   }
 }
 

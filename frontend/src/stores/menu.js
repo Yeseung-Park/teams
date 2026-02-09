@@ -18,8 +18,15 @@ export const useMenuStore = defineStore('menu', {
       this.loading = true
       try {
         const { data } = await api.get('/customer/menus')
-        this.menus = data
-        this.categories = [...new Set(data.map(m => m.category))]
+        // Flatten grouped data: [{category_name, menus: []}] -> flat menu array
+        this.menus = data.flatMap(cat => 
+          cat.menus.map(menu => ({
+            ...menu,
+            category: cat.category_name,
+            category_id: cat.category_id
+          }))
+        )
+        this.categories = data.map(cat => cat.category_name)
       } finally {
         this.loading = false
       }
@@ -29,8 +36,15 @@ export const useMenuStore = defineStore('menu', {
       this.loading = true
       try {
         const { data } = await api.get('/admin/menus')
-        this.menus = data
-        this.categories = [...new Set(data.map(m => m.category))]
+        // Flatten grouped data: [{category_name, menus: []}] -> flat menu array
+        this.menus = data.flatMap(cat => 
+          cat.menus.map(menu => ({
+            ...menu,
+            category: cat.category_name,
+            category_id: cat.category_id
+          }))
+        )
+        this.categories = data.map(cat => cat.category_name)
       } finally {
         this.loading = false
       }
