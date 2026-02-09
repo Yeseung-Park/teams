@@ -63,15 +63,15 @@ class TableService:
         await sse_service.broadcast(store_id, "table_reset", {"table_id": table_id})
 
     async def get_table_history(self, db: AsyncSession, store_id: int, table_id: int, date_from: Optional[date] = None) -> List[OrderResponse]:
+        # Get all sessions (both active and inactive)
         query = select(TableSession).where(
-            TableSession.table_id == table_id,
-            TableSession.is_active == False
+            TableSession.table_id == table_id
         ).options(selectinload(TableSession.orders).selectinload(Order.items))
         
         if date_from:
-            query = query.where(TableSession.session_end_time >= datetime.combine(date_from, datetime.min.time()))
+            query = query.where(TableSession.session_start_time >= datetime.combine(date_from, datetime.min.time()))
         
-        result = await db.execute(query.order_by(TableSession.session_end_time.desc()))
+        result = await db.execute(query.order_by(TableSession.session_start_time.desc()))
         sessions = result.scalars().all()
         
         orders = []
