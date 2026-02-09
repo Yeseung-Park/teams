@@ -34,11 +34,11 @@
 - [x] Units Generation (COMPLETED)
 
 ### CONSTRUCTION PHASE
-- [ ] Functional Design (IN PROGRESS - backend)
-- [ ] NFR Requirements (EXECUTE)
-- [ ] NFR Design (EXECUTE)
-- [ ] Infrastructure Design (EXECUTE)
-- [ ] Code Generation (EXECUTE)
+- [x] Functional Design (COMPLETED - backend)
+- [x] NFR Requirements (COMPLETED - backend)
+- [x] NFR Design (COMPLETED - backend)
+- [x] Infrastructure Design (COMPLETED - backend)
+- [ ] Code Generation (IN PROGRESS - backend TDD)
 - [ ] Build and Test (EXECUTE)
 
 ### OPERATIONS PHASE
